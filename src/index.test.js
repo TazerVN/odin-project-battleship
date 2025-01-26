@@ -1,4 +1,4 @@
-const { ship, gameboard, player } = require("./index");
+const { ship, gameboard, player } = require("./objectConstructor");
 
 it("testing gameboard receiveAttack method", () => {
   const mockGameboard = new gameboard();

@@ -1,66 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Lexend+Giga:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <title>Battleship Game</title>
     <style>
-        body{
-            background-color: #1a1a1a;
-        }
+      :root {
+        --main-background-color: #010102;
+        --text-color: rgb(248, 242, 214);
+        --button-color: rgb(5, 75, 156);
+        --container-color: #0000009d;
+        --ship-color: rgb(185, 0, 0);
+        --miss-color: rgb(85, 83, 83);
+        --hit-color: green;
+      }
+      * {
+        font-family: "Afacad Flux";
+        color: var(--text-color);
+        font-weight: 500;
+        user-select: none;
+      }
+      body {
+        overflow: hidden;
+        background-color: var(--main-background-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 50px;
+        height: 90vh;
+      }
 
-        .game-container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            padding: 2rem;
-        }
+      .main {
+        width: 70%;
+        height: 70vh;
+      }
 
-        .grid-container {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            background-color: #535252c5;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 5px 10px 5px -5px #5e5c5c;
-        }
+      .game-container {
+        opacity: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        padding: 10rem;
+        transition: opacity 2s;
+        width: 100%;
+        height: 100%;
+      }
 
-        .grid-button {
-            width: 50px;
-            height: 50px;
-            background-color: #1c95e6;
-            border: none;
-            margin: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+      .grid-container {
+        position: fixed;
+        width: 30rem;
+        height: 30rem;
+        display: grid;
+        justify-content: center;
+        align-items: center;
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+        background-color: var(--container-color);
+        padding: 20px;
+        border-radius: 8px;
+        transition: transform 1s, opacity 2s;
+      }
 
-        .grid-button:hover {
-            background-color: #2980b9;
-        }
+      .grid-container.ship-container {
+        width: 30rem;
+        height: 30rem;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        justify-content: unset;
+        align-items: unset;
+        padding: 20px;
+      }
 
-        .board-label {
-            font-size: 1.5rem;
-            color: #aed4ff;
-            margin-bottom: 0.5rem;
-        }
+      .grid-container.ship-container > div {
+        width: 14rem;
+        height: 12rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--button-color);
+        border: 2px solid var(--text-color);
+        border-radius: 4px;
+        margin: 4px;
+        padding: 20px;
+      }
 
-        .grid-button#grid-button-ship{
-            background-color: red;
-        }
-        
-        .grid-button#grid-button-ship:hover{
-            background-color: rgba(255, 0, 0, 0.562);
-        }
+      .grid-button {
+        justify-self: center;
+        padding: 10px;
+        font-size: 25px;
+        width: 3rem;
+        height: 3rem;
+        background-color: var(--button-color);
+        border: 2px solid var(--text-color);
+        margin: 2px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.5s;
+      }
 
+      .grid-button:hover {
+        background-color: #0a2463;
+      }
+
+      .board-label {
+        font-size: 1.5rem;
+        color: #aed4ff;
+        margin-bottom: 0.5rem;
+      }
+
+      button.grid-button-ship {
+        background-color: var(--ship-color);
+        padding: 10px;
+        font-size: 25px;
+        width: 3rem;
+        height: 3rem;
+        border: 2px solid var(--text-color);
+        margin-right: 2px;
+        border-radius: 4px;
+        transition: background-color 0.5s;
+      }
+
+      button.grid-button.grid-button-hasShip{
+        background-color: var(--ship-color);
+      }
+
+      div.drag {
+        background-color: #00000000;
+      }
+
+      .ship-container-selection {
+        border-radius: 4px;
+        display: flex;
+      }
+      .ship-container-selection:hover > button {
+        background-color: rgba(41, 1, 1, 0.562);
+        cursor: pointer;
+      }
+
+      .ship-container-selection:focus {
+        background-color: rgba(41, 1, 1, 0.562);
+      }
+
+      button.grid-button.grid-button-ship.selected {
+        background-color: rgba(41, 1, 1, 0.562);
+      }
+
+      div.title,
+      div.guide {
+        font-size: 50px;
+      }
+
+      div.title {
+        opacity: 0;
+        font-size: 70px;
+        transition: font-size 1s, opacity 2s;
+        margin-bottom: 50px;
+      }
+
+      div.title:hover {
+        font-size: 90px;
+        transition: font-size 1s;
+      }
+
+      div.endcard {
+        justify-self: flex-end;
+        margin: 0;
+        padding: 0;
+      }
+
+      input {
+        border: 1px solid var(--text-color);
+        border-radius: 4px;
+        font-size: 2rem;
+        width: 20rem;
+        height: 3rem;
+        background-color: var(--main-background-color);
+      }
+
+      .prompt {
+        opacity: 0;
+        position: fixed;
+        top: 30%;
+        align-self: center;
+        justify-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        border: 3px solid var(--text-color);
+        padding: 50px;
+        border-radius: 4px;
+        transition: transform 0.5s, opacity 2s;
+        z-index: 1;
+        background-color: var(--button-color);
+      }
+
+      button.submit {
+        background-color: var(--main-background-color);
+        border: 1px solid transparent;
+        border-radius: 0.75rem;
+        box-sizing: border-box;
+        color: #fffaff;
+        cursor: pointer;
+        flex: 0 0 auto;
+        font-family: "Inter var", ui-sans-serif, system-ui, -apple-system,
+          system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+          sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+          "Noto Color Emoji";
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.5rem;
+        padding: 0.75rem 1.2rem;
+        text-align: center;
+        text-decoration: none #6b7280 solid;
+        text-decoration-thickness: auto;
+        transition-duration: 1s;
+        transition-property: background-color, border-color, color, fill, stroke,
+          transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        width: auto;
+      }
+
+      button.submit:hover {
+        background-color: #374151;
+        transform: scale(1.5);
+        transition: transform 1s;
+      }
+
+      button.submit:focus {
+        box-shadow: none;
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+      }
+
+      @media (min-width: 768px) {
+        .button-40 {
+          padding: 0.75rem 1.5rem;
+        }
+      }
     </style>
-</head>
-<body>
-    <div class="game-container">
+  </head>
+  <body>
+    <div class="title">BATTLESHIP</div>
+    <div class="prompt" draggable="false">
+      <div class="guide">Set your name:</div>
+      <input type="text" name="name" id="name" />
+      <button class="submit">Continue</button>
     </div>
-</body>
+
+    <div class="main">
+      <div class="game-container"></div>
+    </div>
+  </body>
 </html>
