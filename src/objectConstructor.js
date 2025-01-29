@@ -64,25 +64,68 @@ class gameboard {
     const ship1 = new ship("ship1", 4);
     const ship2 = new ship("ship2", 1);
     const ship3 = new ship("ship3", 2);
-    const ship4 = new ship("ship", 3);
+    const ship4 = new ship("ship4", 3);
 
     this.listOfShips.push(ship1);
     this.listOfShips.push(ship2);
     this.listOfShips.push(ship3);
     this.listOfShips.push(ship4);
 
-    this.myBoard[0][0] = ship2;
-    this.myBoard[3][3] = ship3;
-    this.myBoard[3][2] = ship3;
-    this.myBoard[6][6] = ship1;
-    this.myBoard[5][6] = ship1;
-    this.myBoard[4][6] = ship1;
-    this.myBoard[3][6] = ship1;
     this.updateNumberofShip();
+  }
+
+  randomShipPlacement(array) {
+    array.forEach((element) => {
+      let direction = "horizontal";
+      let RNG1 = RNGfunc(10);
+      let RNG2 = RNGfunc(10);
+      let RNGBool = RNGfunc(2);
+
+      if (RNGBool == 1) {
+        direction = "vertical";
+      }
+
+      for (let i = 0; i < element.length; i++) {
+        if (direction == "vertical") {
+          while (
+            this.myBoard[RNG1][RNG2] instanceof ship ||
+            this.myBoard[RNG1 + i][RNG2] instanceof ship ||
+            RNG1 - 1 + element.length >= 10
+          ) {
+            RNG1 = RNGfunc(10);
+            RNG2 = RNGfunc(10);
+          }
+        } else if (direction == "horizontal") {
+          while (
+            this.myBoard[RNG1][RNG2] instanceof ship ||
+            this.myBoard[RNG1][RNG2 + i] instanceof ship ||
+            RNG2 - 1 + element.length >= 10
+          ) {
+            RNG1 = RNGfunc(10);
+            RNG2 = RNGfunc(10);
+          }
+        }
+      }
+      console.log(RNG1, RNG2);
+
+      if (direction == "vertical") {
+        for (let i = 0; i < element.length; i++) {
+          this.myBoard[RNG1 + i][RNG2] = element;
+        }
+      } else if (direction == "horizontal") {
+        for (let i = 0; i < element.length; i++) {
+          this.myBoard[RNG1][RNG2 + i] = element;
+        }
+      }
+    });
   }
 
   updateNumberofShip() {
     this.numberofShips = this.listOfShips.length;
+  }
+
+  updateCoordinate(ship, i, n) {
+    this.myBoard[i][n] = ship;
   }
 }
 
@@ -93,6 +136,7 @@ class player {
     this.enemyboard = new gameboard();
     this.opponent = null;
     this.isTurn = false;
+    this.attackList = [];
   }
   attackTarget(player, coordinates) {
     if (this.enemyboard.myBoard[coordinates[0]][coordinates[1]] == "") {
@@ -110,21 +154,8 @@ class player {
         return "invalid";
       }
     } else {
-      return "you have already attacked this place";
+      return "invalid";
     }
-  }
-
-  randomAttack(player) {
-    let previousCoord;
-    let RNG1 = Math.floor(Math.random() * 9);
-    let RNG2 = Math.floor(Math.random() * 9);
-    const RNGcoord = [RNG1, RNG2];
-    if (RNGcoord == previousCoord) {
-      RNG1 = Math.floor(Math.random() * 9);
-      RNG2 = Math.floor(Math.random() * 9);
-    }
-    previousCoord = RNGcoord;
-    this.attackTarget(player, RNGcoord);
   }
 
   winCondition() {
@@ -132,8 +163,17 @@ class player {
   }
 }
 
+function RNGfunc(number) {
+  return Math.floor(Math.random() * number);
+}
+
+function check(value, index, array) {
+  return value;
+}
+
 module.exports = {
   ship,
   gameboard,
   player,
+  RNGfunc,
 };

@@ -3,28 +3,33 @@ import { later } from "./gamestate";
 import { mouseDown, mouseUp } from "./dragNdrop";
 
 const title = document.querySelector(".title");
+const description = document.querySelector(".description")
 const prompt = document.querySelector(".prompt");
 const submitButton = document.querySelector("button.submit");
 const gamecontainer = document.querySelector(".game-container");
 const body = document.body;
 let constrain = 50;
 
+
 title.style.opacity = "100";
+description.style.opacity = "100";
 prompt.style.opacity = "100";
 gamecontainer.style.display = "none";
 
-continueButton()
-gamecontainer.style.display = "flex";
 
 submitButton.addEventListener("click", async () => {
   title.style.opacity = "0";
+  description.style.opacity = "0";
   prompt.style.opacity = "0";
   gamecontainer.style.display = "flex";
   const move = await later(2000, "continue");
   continueButton();
+  description.textContent = "Drag and drop the ship onto the board!"
+  const move2 = await later(500, "continue");
   body.removeChild(prompt);
   title.style.opacity = "100";
-});
+  description.style.opacity = "100";
+}, {once: true});
 
 funrack(prompt, body);
 

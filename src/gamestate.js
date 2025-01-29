@@ -1,12 +1,19 @@
 import { ship, gameboard, player } from "./objectConstructor";
 import { reRender, renderGameboard } from "./render";
+import { RNGfunc } from "./objectConstructor";
 
-function continueButton() {
+let RNG1 = RNGfunc(10);
+let RNG2 = RNGfunc(10);
+
+let IsAttackSucceed = false;
+const description = document.querySelector(".description");
+
+const continueButton = () => {
   const input = document.querySelector("#name") || "player";
   const prompt = document.querySelector(".prompt");
   gameStart(input.value);
   prompt.style.display = "none";
-}
+};
 
 async function gameStart(playername) {
   const player1 = new player(playername);
@@ -20,37 +27,87 @@ async function gameStart(playername) {
 }
 
 async function turnState(player) {
-  if (player.winCondition() === true) {
+  if (player.opponent.winCondition() === true) {
     player.isTurn = false;
     player.opponent.isTurn = false;
-    console.log(player.name + " has no more ship");
-    return console.log(player.opponent.name + " win!");
-  }
-  if (player.isTurn === true && player.opponent.isTurn === false) {
-    console.log("opponent turn");
-    player.isTurn = false;
-    player.opponent.isTurn = true;
-  } else if (player.isTurn === false && player.opponent.isTurn === true) {
-    console.log("your turn");
-    player.isTurn = true;
-    player.opponent.isTurn = false;
-  }
-
-  if (player.opponent.name == "CPU") {
-    CPUturn(player.opponent);
+    const wait = await later(1000, "continue");
+    description.textContent = player.opponent.name + " has no more ship";
+    const wait2 = await later(1000, "continue");
+    description.textContent = player.name + " Win!";
+    const replay = document.querySelector("button.replay");
+    replay.style.opacity = "100"
+    return;
+  } else {
+    if (player.isTurn === true && player.opponent.isTurn === false) {
+      player.isTurn = false;
+      const wait = await later(1000, "continue");
+      description.textContent = player.opponent.name + " turn!";
+      player.opponent.isTurn = true;
+    }
+    if (player.opponent.name == "CPU") {
+      description.textContent = "CPU turn!";
+      const nextturn = CPUturn(player.opponent);
+    }
   }
 }
 
 async function CPUturn(player) {
-  console.log("CPU attack");
-  const move = await later(500, "continue");
-  player.randomAttack(player.opponent);
-  turnState(player);
+  if (IsAttackSucceed == true) {
+    while (player.enemyboard.myBoard[RNG1][RNG2][0]) {
+      switch (RNGfunc(4)) {
+        case 0:
+          if (RNG1 - 1 >= 0) {
+            RNG1 = RNG1 - 1;
+          }
+          break;
+        case 1:
+          if (RNG2 + 1 < 10) {
+            RNG2 = RNG2 + 1;
+          }
+          break;
+        case 2:
+          if (RNG1 + 1 < 10) {
+            RNG1 = RNG1 + 1;
+          }
+          break;
+        case 3:
+          if (RNG2 - 1 >= 0) {
+            RNG2 = RNG2 - 1;
+          }
+          break;
+      }
+    }
+  } else {
+    RNG1 = RNGfunc(10);
+    RNG2 = RNGfunc(10);
+  }
+
+  switch (player.attackTarget(player.opponent, [RNG1, RNG2])) {
+    case "hit":
+      IsAttackSucceed = true;
+      description.textContent = "hit!";
+
+      break;
+    case "miss":
+      IsAttackSucceed = false;
+      description.textContent = "miss...";
+      break;
+    case "SUNK!":
+      IsAttackSucceed = false;
+      description.textContent = "A SHIP HAS SUNK!";
+      break;
+    case "invalid":
+      CPUturn(player);
+      break;
+  }
   reRender("default", player.opponent.gameboard);
+  turnState(player);
 }
 
 function later(delay, value) {
   return new Promise((resolve) => setTimeout(resolve, delay, value));
 }
+
+function newd() {}
 
 export { gameStart, turnState, continueButton, later };
